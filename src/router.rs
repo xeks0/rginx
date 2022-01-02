@@ -74,7 +74,7 @@ impl Router {
 async fn not_found_handler(_cx: Context) -> Response<Body> {
     hyper::Response::builder()
         .status(StatusCode::NOT_FOUND)
-        .body("NOT FOUND".into())
+        .body(format!("service {} {}",_cx.state.name.as_str().to_string(),"NOT FOUND".to_string()).into())
         .unwrap()
 }
 

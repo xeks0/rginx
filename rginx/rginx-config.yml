@@ -21,14 +21,18 @@ backend:
   port: 8080
   bind: 127.0.0.1
   proxy: true
-  location: /api
-  url: http://httpbin.org
+  locations:
+    - location: /_v1
+      url: http://localhost:8083
+    - location: /_v2
+      url: http://localhost:8084
 test:
   port: 8082
   bind: 127.0.0.1
   proxy: true
-  location: /apiv1
-  url: http://localhost:8080/api
+  locations:
+    - location: /api
+      url: http://localhost:8080
 test1:
   port: 8083
   bind: 127.0.0.1

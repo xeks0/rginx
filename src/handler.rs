@@ -1,6 +1,7 @@
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::ops::Add;
-use crate::{Context, Response};
+use crate::{Context, Location, Response};
 use hyper::{Body, StatusCode};
 use serde::Deserialize;
 
@@ -15,7 +16,7 @@ pub async fn proxy_handler(mut ctx: Context) -> Response<Body>{
                 .collect()
         })
         .unwrap_or_else(HashMap::new);
-    let uri = ctx.state.url;
+    let uri = findLocation(ctx.req.uri().path(), &ctx.state.locations);
     let uri_string = format!(
         "{}{}",
         uri,
@@ -25,14 +26,18 @@ pub async fn proxy_handler(mut ctx: Context) -> Response<Body>{
             .unwrap_or("/")
     );
     let params_str:std::string::String = map_to_string(&mut params);
-    let mut uri_req = String::add(uri_string.to_string(), params_str.as_str().clone()).replace(&ctx.state.location.clone(), "").parse().unwrap();
-    *ctx.req.uri_mut() = uri_req;
+    let mut uri_req = String::add(uri_string.to_string().clone(), params_str.as_str().clone());
+    for location in &ctx.state.locations {
+        uri_req = uri_req.to_string().clone().replace(&location.location.clone(), "");
+    }
+    *ctx.req.uri_mut() = uri_req.parse().unwrap();
+    println!("PATH {:?} SERVICE {}",uri_string.to_string().clone().to_string(),ctx.state.name.to_string());
     let mut resp_proxy = match ctx.state.client.request(ctx.req).await {
         Ok(v) => v,
         Err(e) => {
             return hyper::Response::builder()
                 .status(StatusCode::BAD_REQUEST)
-                .body(format!("could not parse JSON: {}", e).into())
+                .body(format!("could not parse JSON1: {}", e).into())
                 .unwrap()
         }
     };
@@ -42,7 +47,7 @@ pub async fn proxy_handler(mut ctx: Context) -> Response<Body>{
         Err(e) => {
             return hyper::Response::builder()
                 .status(StatusCode::BAD_REQUEST)
-                .body(format!("could not parse JSON: {}", e).into())
+                .body(format!("could not parse JSON2: {}", e).into())
                 .unwrap()
         }
     };
@@ -50,7 +55,24 @@ pub async fn proxy_handler(mut ctx: Context) -> Response<Body>{
     return response;
 }
 
+fn findLocation(path: &str, p1: &Vec<Location>) -> String {
+    for location in p1 {
+        if path.contains(&location.location) {
+            return location.url.clone();
+        }
+    }
+    return "".to_string();
+}
+
 pub async fn test_handler(ctx: Context) -> String {
+    let uri_string = format!(
+        "{}",
+        ctx.req.uri()
+            .path_and_query()
+            .map(|x| x.as_str())
+            .unwrap_or("/")
+    );
+    println!("PATH {:?} SERVICE {}",uri_string.to_string().clone().to_string(),ctx.state.name.to_string());
     format!("test called  as seever {}, state_thing was: {}",ctx.state.name, ctx.state.state_thing)
 }
 fn map_to_string(map: &mut HashMap<String, String>) -> String{
