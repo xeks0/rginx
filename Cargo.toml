@@ -1,0 +1,18 @@
+[package]
+name = "rginx"
+version = "0.1.0"
+edition = "2021"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+yaml-rust = "0.4"
+clap = "~2.27.0"
+hyper = { version = "0.14", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+futures-util = { version = "0.3", default-features = false }
+url = "2.2.2"
+route-recognizer = "0.2"
+async-trait = "0.1"
+serde = {version = "1.0", features = ["derive"] }
+serde_json = "1.0"
