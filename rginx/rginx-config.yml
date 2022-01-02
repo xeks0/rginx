@@ -1,4 +1,55 @@
-port: 8080
-bind: 127.0.0.1
-path:
-  www: /Users/xeks/images
+servers:
+  - localhost
+  - frontend
+  - backend
+  - test
+  - test1
+  - test2
+  - test3
+  - test4
+  - test5
+  - test6
+localhost:
+  port: 8081
+  bind: 127.0.0.1
+  proxy: false
+frontend:
+  port: 8090
+  bind: 127.0.0.1
+  proxy: false
+backend:
+  port: 8080
+  bind: 127.0.0.1
+  proxy: true
+  location: /api
+  url: http://httpbin.org
+test:
+  port: 8082
+  bind: 127.0.0.1
+  proxy: true
+  location: /apiv1
+  url: http://localhost:8080/api
+test1:
+  port: 8083
+  bind: 127.0.0.1
+  proxy: false
+test2:
+  port: 8084
+  bind: 127.0.0.1
+  proxy: false
+test3:
+  port: 8085
+  bind: 127.0.0.1
+  proxy: false
+test4:
+  port: 8086
+  bind: 127.0.0.1
+  proxy: false
+test5:
+  port: 8087
+  bind: 127.0.0.1
+  proxy: false
+test6:
+  port: 8088
+  bind: 127.0.0.1
+  proxy: false
